@@ -32,7 +32,7 @@ export default async (bot, message) => {
       if (messages.length > 0) {
         await botReply(message, {
           text: `:scroll: *News from <@${user}>* :scroll:`,
-          attachments: _.map(messages, ({text}) => ({text, mrkdwn_in: ['text']})),
+          attachments: _.map(messages, ({text}) => ({text, mrkdwn_in: ['text']}))
         })
       }
     }
