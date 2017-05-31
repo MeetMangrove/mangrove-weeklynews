@@ -1,104 +1,43 @@
 /**
- * Created by thomasjeanneau on 30/05/2017.
+ * Created by thomasjeanneau on 31/05/2017.
  */
 
+import _ from 'lodash'
 import Promise from 'bluebird'
-import Handlebars from 'handlebars'
+import asyncForEach from 'async-foreach'
 
-export default (bot, message, name) => new Promise((resolve, reject) => {
-  try {
-    bot.startPrivateConversation(message, (err, convo) => {
-      if (err) return console.log(err)
-      convo.addMessage({
-        text: `Okay ${name}, let's build the weekly news!`
-      }, 'default')
+import { controller } from './config'
 
-      convo.addQuestion('What\'s the message you want to send to everyone for asking some news ? You can use the variable _{firstName}_ if you want.', (response, convo) => {
-        convo.gotoThread('completed')
-      }, {key: 'response'}, 'default')
+const {forEach} = asyncForEach
 
-      convo.beforeThread('completed', (convo, next) => {
-        const response = convo.extractResponse('response').replace(/{firstName}/, '{{firstName}}')
-        const template = Handlebars.compile(response, {noEscape: true})
-        console.log(template({firstName: 'Elon'}))
-        convo.setVar('message', template({firstName: 'Elon'}))
-        next()
+export default async (bot, message) => {
+  const botReply = Promise.promisify(bot.reply)
+  const getUser = Promise.promisify(controller.storage.users.find)
+  await botReply(message, `Looking for all responses...`)
+  const apiIm = Promise.promisifyAll(bot.api.im)
+  const {ims} = await apiIm.listAsync({
+    token: bot.config.bot.app_token
+  })
+  forEach(ims, async function ({id, user}) {
+    const done = this.async()
+    const slackUser = await getUser({slack_id: user})
+    const { last_ts: lastTs } = slackUser[0] || {last_ts: null}
+    if (lastTs && user !== message.user && user !== bot.identifyBot().id) {
+      const {messages} = await apiIm.historyAsync({
+        token: bot.config.bot.app_token,
+        channel: id,
+        oldest: lastTs,
+        count: 3
       })
-
-      convo.addMessage({
-        text: 'Awesome, this is your message if he is sent to Elon Musk:',
-        attachments: [{
-          title: 'Message:',
-          text: '{{{vars.message}}}',
-          mrkdwn_in: ['text']
-        }]
-      }, 'completed')
-
-      convo.addQuestion({
-        text: 'I\'m gonna send this message to everyone for you.',
-        attachments: [
-          {
-            title: 'Is it okay?',
-            callback_id: '123',
-            attachment_type: 'default',
-            actions: [
-              {
-                'name': 'yes',
-                'text': 'Yes',
-                'value': 'yes',
-                'type': 'button'
-              },
-              {
-                'name': 'no',
-                'text': 'No',
-                'value': 'no',
-                'type': 'button'
-              },
-              {
-                'name': 'later',
-                'text': 'Later',
-                'value': 'later',
-                'type': 'button'
-              }
-            ]
-          }
-        ]
-      }, [
-        {
-          pattern: 'yes',
-          callback: function (reply, convo) {
-            convo.say(`All messages have been sent, you just have to wait for answers now :wink:`)
-            convo.next()
-          }
-        },
-        {
-          pattern: 'no',
-          callback: function (reply, convo) {
-            convo.gotoThread('default')
-          }
-        },
-        {
-          pattern: 'later',
-          callback: function (reply, convo) {
-            convo.say('Okay, maybe later!')
-            convo.next()
-          }
-        },
-        {
-          default: true,
-          callback: function () {
-            convo.repeat()
-            convo.next()
-          }
-        }
-
-      ], {}, 'completed')
-
-      convo.on('end', () => {
-        resolve()
-      })
-    })
-  } catch (e) {
-    reject(e)
-  }
-})
+      if (messages.length > 0) {
+        await botReply(message, {
+          text: `:scroll: *News from <@${user}>* :scroll:`,
+          attachments: _.map(messages, ({text}) => ({text, mrkdwn_in: ['text']})),
+        })
+      }
+    }
+    done()
+  }, async () => {
+    await botReply(message, `Done! :clap:`)
+  })
+}

@@ -43,6 +43,13 @@ export const getMember = async (id) => {
   return member
 }
 
+// get all members
+export const getAllMembers = async (bot) => {
+  const apiUser = Promise.promisifyAll(bot.api.users)
+  const {members} = await apiUser.listAsync({token: bot.config.bot.app_token})
+  return members
+}
+
 // reads all members from Airtable, and returns
 // a boolean checking if the current user is an builder or not.
 export const checkIfBuilder = async (bot, message) => {
