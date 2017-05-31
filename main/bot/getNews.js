@@ -20,13 +20,13 @@ export default async (bot, message) => {
   })
   forEach(ims, async function ({id, user}) {
     const done = this.async()
-    const slackUser = await getUser({slack_id: user})
-    const { last_ts: lastTs } = slackUser[0] || {last_ts: null}
+    const slackUser = await getUser({id: user})
+    const { last_ts: lastTs } = slackUser[0] || {last_ts: 1496191501.720946} // TODO: replace by lastTs
     if (lastTs && user !== message.user && user !== bot.identifyBot().id) {
       const {messages} = await apiIm.historyAsync({
         token: bot.config.bot.app_token,
         channel: id,
-        oldest: 1496191501.720946, // TODO: replace by lastTs
+        oldest: lastTs,
         count: 3
       })
       if (messages.length > 0) {

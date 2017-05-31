@@ -88,7 +88,7 @@ export default (bot, message, name) => new Promise((resolve, reject) => {
                   text: template({firstName: first_name}),
                   as_user: true
                 })
-                await saveUser({slack_id: id, last_ts: ts})
+                await saveUser({id, last_ts: ts})
               } else {
                 console.log('Send to', name)
               }
