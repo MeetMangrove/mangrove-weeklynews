@@ -60,3 +60,8 @@ Heroku dynos:
 ```bash
 $ npm run web
 ```
+
+### Use the bot
+
+All commands are displayed by ```help```
+![help commands]()
