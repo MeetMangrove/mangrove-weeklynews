@@ -1,6 +1,6 @@
-# Mangrove Bot Boilerplate
+# Mangrove Bot Weekly News
 
-A boilerplate for Mangrove Bots in Node.js.
+A bot to automatize the weekly news creation without kill the human vibe.
 
 ## Usages
 
