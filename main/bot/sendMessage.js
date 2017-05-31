@@ -6,7 +6,7 @@ import Promise from 'bluebird'
 import Handlebars from 'handlebars'
 import asyncForEach from 'async-foreach'
 
-import { getAllMembers } from '../methods'
+import { getAllMembers, checkIfBot } from '../methods'
 import { controller } from './config'
 
 require('dotenv').config()
@@ -81,8 +81,8 @@ export default (bot, message, name) => new Promise((resolve, reject) => {
             const members = await getAllMembers(bot)
             forEach(members, async function ({id, name, profile: {first_name}}) {
               const done = this.async()
-              if (NODE_ENV === 'PRODUCTION' || id === message.user) {
-                const { ts } = await apiChat.postMessageAsync({
+              if (await checkIfBot(bot, id) === false && ((NODE_ENV === 'PRODUCTION' && id !== message.user) || id === message.user)) {
+                const {ts} = await apiChat.postMessageAsync({
                   token: bot.config.bot.app_token,
                   channel: id,
                   text: template({firstName: first_name}),

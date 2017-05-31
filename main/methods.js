@@ -66,3 +66,10 @@ export const checkIfBuilder = async (bot, message) => {
   const {user: {name}} = await apiUser.infoAsync({user: message.user})
   return admins.indexOf(name) >= 0
 }
+
+export const checkIfBot = async (bot, id) => {
+  if (id === 'USLACKBOT') return true
+  const apiUsers = Promise.promisifyAll(bot.api.users)
+  const {user: {is_bot: isBot}} = await apiUsers.infoAsync({token: bot.config.bot.app_token, user: id})
+  return isBot
+}
