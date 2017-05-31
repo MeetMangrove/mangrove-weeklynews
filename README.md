@@ -2,9 +2,17 @@
 
 A bot to automatize the weekly news creation without kill the human vibe.
 
+Screenshots:
+
+---
+
 ![send message](./public/screenshot_3.png)
 
+---
+
 ![get news](./public/screenshot_2.png)
+
+---
 
 ## Usages
 
@@ -68,4 +76,7 @@ $ npm run web
 ### Use the bot
 
 All commands are displayed by ```help```
+
+---
+
 ![help commands](./public/screenshot_1.png)
