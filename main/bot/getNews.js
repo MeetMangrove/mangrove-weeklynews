@@ -26,7 +26,7 @@ export default async (bot, message) => {
       const {messages} = await apiIm.historyAsync({
         token: bot.config.bot.app_token,
         channel: id,
-        oldest: lastTs,
+        oldest: 1496191501.720946, // TODO: replace by lastTs
         count: 3
       })
       if (messages.length > 0) {
