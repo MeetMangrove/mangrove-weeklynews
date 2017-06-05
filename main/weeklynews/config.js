@@ -58,7 +58,7 @@ controller.on('create_bot', (bot, config) => {
       if (!err) trackBot(bot)
       bot.startPrivateConversation({user: config.createdBy}, (err, convo) => {
         if (err) return console.log(err)
-        convo.say('I am a bot that has just joined your team')
+        convo.say('I am a weeklynews that has just joined your team')
         convo.say('You must now /invite me to a channel so that I can be of use!')
       })
     })
@@ -78,7 +78,7 @@ controller.storage.teams.all((err, teams) => {
   for (let t in teams) {
     if (teams[t].bot) {
       controller.spawn(teams[t]).startRTM((err, bot) => {
-        if (err) return console.log('Error connecting bot to Slack:', err)
+        if (err) return console.log('Error connecting weeklynews to Slack:', err)
         trackBot(bot)
       })
     }
