@@ -39,14 +39,14 @@ export const getSlackUser = async (bot, id) => {
   return user
 }
 
-// get member by id
+// get airtable member by id
 export const getMember = async (id) => {
   const findMember = Promise.promisify(base(AIRTABLE_MEMBERS).find)
   const member = await findMember(id)
   return member
 }
 
-// get all members
+// get all slack members
 export const getAllMembers = async (bot) => {
   const apiUser = Promise.promisifyAll(bot.api.users)
   const {members} = await apiUser.listAsync({token: bot.config.bot.app_token})
@@ -100,7 +100,9 @@ export const getRandomMembers = (bot, message) => {
         forEach(res.members, async function (member) {
           const done = this.async()
           await updateMember(member.airtableId, {
-            'Asked for news this month [weeklynews]': false
+            'Asked for news this month [weeklynews]': false,
+            'Message Timestamp [weeklynews]': null,
+            'Asked by [weeklynews]': null
           })
           done()
         }, async () => {
@@ -118,19 +120,24 @@ export const getRandomMembers = (bot, message) => {
 
 // reads all members from Airtable, and returns
 // a boolean checking if the current user is an builder or not.
-export const checkIfBuilder = async (bot, message) => {
-  const admins = []
+export const checkIfResponsible = async (bot, message) => {
+  let responsible = null
   const apiUser = Promise.promisifyAll(bot.api.users)
   const records = await _getAllRecords(base(AIRTABLE_MEMBERS).select({
     view: 'Main View',
+    fields: ['Slack Handle', 'Is responsible ? [weeklynews]'],
     filterByFormula: 'FIND(\'Cofounder\', {Status})'
   }))
   records.forEach((record) => {
-    const name = record.get('Slack Handle')
-    admins.push(name.replace(/^@/, ''))
+    if (record.get('Is responsible ? [weeklynews]') === true) {
+      responsible = record.get('Slack Handle').replace(/^@/, '')
+    }
   })
   const {user: {name}} = await apiUser.infoAsync({user: message.user})
-  return admins.indexOf(name) >= 0
+  return {
+    isResponsible: responsible === name,
+    responsible
+  }
 }
 
 export const checkIfBot = async (bot, id) => {
@@ -169,4 +176,35 @@ export const getResponsibles = async (bot) => {
   const {id: responsibleId} = _.find(allMembers, {name: responsibleName})
   const {id: nextResponsibleId} = _.find(allMembers, {name: nextResponsibleName})
   return {responsibleId, nextResponsibleId, airtableId, nextAirtableId}
+}
+
+export const getTimestamp = async (bot, userId, allMembers) => {
+  let timestamp = 0
+  const {name} = _.find(allMembers, {id: userId})
+  const records = await _getAllRecords(base(AIRTABLE_MEMBERS).select({
+    view: 'Main View',
+    fields: ['Slack Handle', 'Message Timestamp [weeklynews]'],
+  }))
+  records.forEach((record) => {
+    if (record.get('Slack Handle') === `@${name}`) {
+      timestamp = record.get('Message Timestamp [weeklynews]')
+    }
+  })
+  return timestamp
+}
+
+export const getUsersAskedByResponsible = async (bot, userId) => {
+  const users = []
+  const records = await _getAllRecords(base(AIRTABLE_MEMBERS).select({
+    view: 'Main View',
+    fields: ['Slack Handle', 'Asked for news this month [weeklynews]', 'Asked by [weeklynews]'],
+    filterByFormula: `AND({Asked for news this month [weeklynews]} = 1, {Asked by [weeklynews]} = '${userId}')`
+  }))
+  const allMembers = await getAllMembers(bot)
+  records.forEach((record) => {
+    const name = record.get('Slack Handle').replace(/^@/, '')
+    const {id} = _.find(allMembers, {name})
+    users.push(id)
+  })
+  return users
 }

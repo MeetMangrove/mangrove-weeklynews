@@ -6,15 +6,20 @@ import _ from 'lodash'
 import Promise from 'bluebird'
 import asyncForEach from 'async-foreach'
 
-import { checkIfBot } from '../methods'
-import { controller } from './config'
+import {
+  checkIfBot,
+  getTimestamp,
+  getUsersAskedByResponsible,
+  getAllMembers
+} from '../methods'
 
 const {forEach} = asyncForEach
 
 export default async (bot, message) => {
   const botReply = Promise.promisify(bot.reply)
-  const getUser = Promise.promisify(controller.storage.users.find)
   await botReply(message, `Looking for all responses... :sleuth_or_spy:`)
+  const usersAsked = await getUsersAskedByResponsible(bot, message.user)
+  const allMembers = await getAllMembers(bot)
   const apiIm = Promise.promisifyAll(bot.api.im)
   const {ims} = await apiIm.listAsync({
     token: bot.config.bot.app_token
@@ -23,22 +28,24 @@ export default async (bot, message) => {
   let replies = 0
   forEach(ims, async function ({id, user}) {
     const done = this.async()
-    const slackUser = await getUser({id: user})
-    const {last_ts: lastTs} = slackUser[0] || {last_ts: 1496191501.720946} // TODO: replace by null if saveUser is working in MongoDB
-    if (await checkIfBot(bot, user) === false && lastTs && user !== message.user) {
-      replies++
-      const {messages} = await apiIm.historyAsync({
-        token: bot.config.bot.app_token,
-        channel: id,
-        oldest: lastTs,
-        count: 3
-      })
-      if (messages.length > 0) {
-        count++
-        await botReply(message, {
-          text: `:scroll: *News from <@${user}>* :scroll:`,
-          attachments: _.reverse(_.map(messages, ({text}) => ({text, mrkdwn_in: ['text']})))
+    if (_.findIndex(usersAsked, userAsked => userAsked === user) > 0) {
+      const isBot = await checkIfBot(bot, user)
+      if (isBot === false && user !== message.user) {
+        replies++
+        const lastTs = await getTimestamp(bot, user, allMembers)
+        const {messages} = await apiIm.historyAsync({
+          token: bot.config.bot.app_token,
+          channel: id,
+          oldest: lastTs,
+          count: 3
         })
+        if (messages.length > 0) {
+          count++
+          await botReply(message, {
+            text: `:scroll: *News from <@${user}>* :scroll:`,
+            attachments: _.reverse(_.map(messages, ({text}) => ({text, mrkdwn_in: ['text']})))
+          })
+        }
       }
     }
     done()

@@ -4,7 +4,7 @@
 
 import Promise from 'bluebird'
 
-import { getSlackUser, checkIfBuilder } from '../methods'
+import { getSlackUser, checkIfResponsible } from '../methods'
 import { controller } from './config'
 import sendMessage from './sendMessage'
 import getNews from './getNews'
@@ -18,48 +18,51 @@ if (!NODE_ENV && !PORT) {
   process.exit(1)
 }
 
+const notResponsibleMessage = (responsible) => `You need to be the Weekly News' responsible if you want to use this command :ghost:\n The responsible is currently <@${responsible}>`
+const errorMessage = (e) => `Oops..! :sweat_smile: A little error occur: \`${e.message || e.error || e}\``
+
 // Builder Commands
 
 controller.hears(['^send message$'], ['direct_message', 'direct_mention'], async (bot, message) => {
   try {
-    const isBuilder = await checkIfBuilder(bot, message)
-    if (isBuilder) {
+    const {isResponsible, responsible} = await checkIfResponsible(bot, message)
+    if (isResponsible) {
       const {name} = await getSlackUser(bot, message.user)
       await sendMessage(bot, message, name)
     } else {
-      bot.reply(message, `You need to be a builder if you want to use this command :ghost:`)
+      bot.reply(message, notResponsibleMessage(responsible))
     }
   } catch (e) {
     console.log(e)
-    bot.reply(message, `Oops..! :sweat_smile: A little error occur: \`${e.message || e.error || e}\``)
+    bot.reply(message, errorMessage(e))
   }
 })
 
 controller.hears(['^get news$'], ['direct_message', 'direct_mention'], async (bot, message) => {
   try {
-    const isBuilder = await checkIfBuilder(bot, message)
-    if (isBuilder) {
+    const {isResponsible, responsible} = await checkIfResponsible(bot, message)
+    if (isResponsible) {
       await getNews(bot, message)
     } else {
-      bot.reply(message, `You need to be a builder if you want to use this command :ghost:`)
+      bot.reply(message, notResponsibleMessage(responsible))
     }
   } catch (e) {
     console.log(e)
-    bot.reply(message, `Oops..! :sweat_smile: A little error occur: \`${e.message || e.error || e}\``)
+    bot.reply(message, errorMessage(e))
   }
 })
 
 controller.hears(['^template$'], ['direct_message', 'direct_mention'], async (bot, message) => {
   try {
-    const isBuilder = await checkIfBuilder(bot, message)
-    if (isBuilder) {
+    const {isResponsible, responsible} = await checkIfResponsible(bot, message)
+    if (isResponsible) {
       bot.reply(message, `This is the template to create a weekly news: <https://docs.google.com/document/d/1mbDYUZYr434mUtzkn0I86oss9hrKphQb0Qwy02zXGWM/edit?usp=sharing|Template Weekly News>`)
     } else {
-      bot.reply(message, `You need to be a builder if you want to use this command :ghost:`)
+      bot.reply(message, notResponsibleMessage(responsible))
     }
   } catch (e) {
     console.log(e)
-    bot.reply(message, `Oops..! :sweat_smile: A little error occur: \`${e.message || e.error || e}\``)
+    bot.reply(message, errorMessage(e))
   }
 })
 
@@ -70,23 +73,23 @@ controller.hears(['^Hello$', '^Yo$', '^Hey$', '^Hi$', '^Ouch$'], ['direct_messag
     const {name} = await getSlackUser(bot, message.user)
     const botReply = Promise.promisify(bot.reply)
     await botReply(message, `Hi ${name}! I'm the Weekly News bot of Mangrove :tada:`)
-    const isBuilder = await checkIfBuilder(bot, message)
-    if (isBuilder) {
+    const {isResponsible, responsible} = await checkIfResponsible(bot, message)
+    if (isResponsible) {
       await botReply(message, `Say \`send message\` if you want me to send a personal message to everybody and get some news :rocket:`)
     } else {
-      await botReply(message, `You need to be a builder if you want to use me :ghost:`)
+      await botReply(message, notResponsibleMessage(responsible))
     }
   } catch (e) {
     console.log(e)
-    bot.reply(message, `Oops..! :sweat_smile: A little error occur: \`${e.message || e.error || e}\``)
+    bot.reply(message, errorMessage(e))
   }
 })
 
 controller.hears(['^help$', '^options$'], ['direct_message', 'direct_mention'], async (bot, message) => {
   try {
     const {name} = await getSlackUser(bot, message.user)
-    const isBuilder = await checkIfBuilder(bot, message)
-    if (isBuilder) {
+    const {isResponsible, responsible} = await checkIfResponsible(bot, message)
+    if (isResponsible) {
       const botReply = Promise.promisify(bot.reply)
       await botReply(message, `Hi ${name}! What can I do for you ? :slightly_smiling_face:`)
       await botReply(message, {
@@ -97,11 +100,11 @@ controller.hears(['^help$', '^options$'], ['direct_message', 'direct_mention'], 
         }]
       })
     } else {
-      bot.reply(message, `Hi ${name}! You need to be a builder if you want to use me :ghost:`)
+      bot.reply(message, notResponsibleMessage(responsible))
     }
   } catch (e) {
     console.log(e)
-    bot.reply(message, `Oops..! :sweat_smile: A little error occur: \`${e.message || e.error || e}\``)
+    bot.reply(message, errorMessage(e))
   }
 })
 
@@ -115,6 +118,6 @@ controller.hears('[^\n]+', ['direct_message', 'direct_mention'], async (bot, mes
     })
   } catch (e) {
     console.log(e)
-    bot.reply(message, `Oops..! :sweat_smile: A little error occur: \`${e.message || e.error || e}\``)
+    bot.reply(message, errorMessage(e))
   }
 })

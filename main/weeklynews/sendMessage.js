@@ -34,7 +34,7 @@ export default (bot, message, name) => new Promise((resolve, reject) => {
       })
 
       convo.addMessage({
-        text: 'Awesome, this is your message if he is sent to Elon Musk:',
+        text: 'Awesome, this is your message if it\'s sent to Elon Musk:',
         attachments: [{
           title: 'Message:',
           text: '{{{vars.message}}}',
@@ -97,7 +97,8 @@ export default (bot, message, name) => new Promise((resolve, reject) => {
                 }
                 await updateMember(airtableId, {
                   'Asked for news this month [weeklynews]': true,
-                  'Message Timestamp [weeklynews]': ts
+                  'Message Timestamp [weeklynews]': ts,
+                  'Asked by [weeklynews]': message.user
                 })
                 done()
               }, () => {
