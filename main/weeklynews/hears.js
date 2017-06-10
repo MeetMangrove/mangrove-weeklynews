@@ -18,7 +18,7 @@ if (!NODE_ENV && !PORT) {
   process.exit(1)
 }
 
-const notResponsibleMessage = (responsible) => `You need to be the Weekly News' responsible if you want to use this command :ghost:\n The responsible is currently <@${responsible}>`
+const notResponsibleMessage = (responsible) => `You need to be the Weekly News' responsible if you want to use me :ghost:\n The responsible is currently <@${responsible}>`
 const errorMessage = (e) => `Oops..! :sweat_smile: A little error occur: \`${e.message || e.error || e}\``
 
 // Builder Commands
