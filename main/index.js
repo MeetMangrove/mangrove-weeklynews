@@ -5,3 +5,4 @@
 import 'newrelic'
 import 'babel-polyfill'
 import './weeklynews/hears'
+import './weeklynews/cron'

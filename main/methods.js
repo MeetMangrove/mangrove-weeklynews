@@ -139,3 +139,34 @@ export const checkIfBot = async (bot, id) => {
   const {user: {is_bot: isBot}} = await apiUsers.infoAsync({token: bot.config.bot.app_token, user: id})
   return isBot
 }
+
+export const getResponsibles = async (bot) => {
+  const members = []
+  const records = await _getAllRecords(base(AIRTABLE_MEMBERS).select({
+    view: 'Main View',
+    fields: ['Name', 'Slack Handle', 'Is responsible ? [weeklynews]'],
+    filterByFormula: 'FIND(\'Cofounder\', {Status})'
+  }))
+  records.forEach((record) => {
+    const name = record.get('Name')
+    members.push({
+      airtableId: record.id,
+      slackName: record.get('Slack Handle').replace(/^@/, ''),
+      lastName: name.substring(name.indexOf(' '), name.length),
+      isResponsible: record.get('Is responsible ? [weeklynews]')
+    })
+  })
+  members.sort(function (a, b) {
+    if (a.lastName < b.lastName) return -1
+    if (a.lastName > b.lastName) return 1
+    return 0
+  })
+  const index = _.findIndex(members, {isResponsible: true})
+  const {slackName: responsibleName, airtableId} = members[index]
+  const nextIndex = index + 1 === members.length ? 0 : index + 1
+  const {slackName: nextResponsibleName, airtableId: nextAirtableId} = members[nextIndex]
+  const allMembers = await getAllMembers(bot)
+  const {id: responsibleId} = _.find(allMembers, {name: responsibleName})
+  const {id: nextResponsibleId} = _.find(allMembers, {name: nextResponsibleName})
+  return {responsibleId, nextResponsibleId, airtableId, nextAirtableId}
+}

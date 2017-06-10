@@ -97,4 +97,4 @@ controller.storage.teams.all((err, teams) => {
   }
 })
 
-export { controller }
+export { controller, _bots }

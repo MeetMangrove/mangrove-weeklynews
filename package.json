@@ -23,6 +23,7 @@
     "bluebird": "^3.5.0",
     "botkit": "^0.5.4",
     "botkit-storage-mongo": "1.0.6",
+    "cron": "1.2.1",
     "dotenv": "4.0.0",
     "handlebars": "4.0.10",
     "lodash": "^4.17.4",
