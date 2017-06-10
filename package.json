@@ -37,6 +37,7 @@
     "eslint-plugin-node": "4.2.2",
     "eslint-plugin-promise": "3.5.0",
     "eslint-plugin-standard": "3.0.1",
+    "localtunnel": "1.8.2",
     "mocha": "^3.3.0",
     "nodemon": "^1.11.0"
   },

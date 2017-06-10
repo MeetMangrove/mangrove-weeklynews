@@ -11,10 +11,10 @@ import getNews from './getNews'
 
 require('dotenv').config()
 
-const {NODE_ENV} = process.env
+const {NODE_ENV, PORT} = process.env
 
-if (!NODE_ENV) {
-  console.log('Error: Specify NODE_ENV in a .env file')
+if (!NODE_ENV && !PORT) {
+  console.log('Error: Specify NODE_ENV and PORT in a .env file')
   process.exit(1)
 }
 

@@ -6,8 +6,7 @@ import Promise from 'bluebird'
 import Handlebars from 'handlebars'
 import asyncForEach from 'async-foreach'
 
-import { getAllMembers, checkIfBot } from '../methods'
-import { controller } from './config'
+import { getRandomMembers, updateMember, checkIfBot } from '../methods'
 
 require('dotenv').config()
 
@@ -76,27 +75,38 @@ export default (bot, message, name) => new Promise((resolve, reject) => {
         {
           pattern: 'yes',
           callback: async function (reply, convo) {
-            const apiChat = Promise.promisifyAll(bot.api.chat)
-            const saveUser = Promise.promisify(controller.storage.users.save)
-            const members = await getAllMembers(bot)
-            forEach(members, async function ({id, name, profile: {first_name}}) {
-              const done = this.async()
-              if (await checkIfBot(bot, id) === false && ((NODE_ENV === 'PRODUCTION' && id !== message.user) || id === message.user)) {
-                const {ts} = await apiChat.postMessageAsync({
-                  token: bot.config.bot.app_token,
-                  channel: id,
-                  text: template({firstName: first_name}),
-                  as_user: true
+            try {
+              const apiChat = Promise.promisifyAll(bot.api.chat)
+              const members = await getRandomMembers(bot, message)
+              bot.reply(message, `All right, I'm sending your message to ${members.length} people...`)
+              forEach(members, async function ({airtableId, id, name, firstName}) {
+                const done = this.async()
+                let ts
+                const isBot = await checkIfBot(bot, id)
+                if (isBot === false && ((NODE_ENV === 'PRODUCTION' && id !== message.user) || id === message.user)) {
+                  const message = await apiChat.postMessageAsync({
+                    token: bot.config.bot.app_token,
+                    channel: id,
+                    text: template({firstName}),
+                    as_user: true
+                  })
+                  ts = parseInt(message.ts, 10)
+                } else {
+                  console.log('Send to', name)
+                  ts = Date.now()
+                }
+                await updateMember(airtableId, {
+                  'Asked for news this month [weeklynews]': true,
+                  'Message Timestamp [weeklynews]': ts
                 })
-                await saveUser({id, last_ts: ts})
-              } else {
-                console.log('Send to', name)
-              }
-              done()
-            }, () => {
-              convo.say(`All messages have been sent, you just have to wait for answers now :wink:`)
-              convo.next()
-            })
+                done()
+              }, () => {
+                convo.say(`All messages have been sent, you just have to wait for answers now :wink:`)
+                convo.next()
+              })
+            } catch (e) {
+              reject(e)
+            }
           }
         },
         {
