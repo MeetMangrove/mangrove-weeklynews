@@ -117,7 +117,7 @@ export const checkIfResponsible = async (bot, message) => {
     view: 'Main View',
     fields: ['Slack Handle'],
     filterByFormula: `AND(
-      FIND('Cofounder', {Status},
+      FIND('Cofounder', {Status}),
       {Is responsible ? [weeklynews]} = 1
     )`
   }))
