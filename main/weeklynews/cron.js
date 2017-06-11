@@ -6,7 +6,7 @@ import _ from 'lodash'
 import cron from 'cron'
 import Promise from 'bluebird'
 
-import { _bots } from './config'
+import { bots } from './config'
 import { getResponsibles, updateMember } from '../methods'
 
 const {CronJob} = cron
@@ -14,7 +14,7 @@ const {CronJob} = cron
 const job = new CronJob({
   cronTime: '00 00 09 * * 1',
   onTick: function () {
-    _.forEach(_bots, async (bot) => {
+    _.forEach(bots, async (bot) => {
       try {
         const {responsibleId, nextResponsibleId, airtableId, nextAirtableId} = await getResponsibles(bot)
         const apiChat = Promise.promisifyAll(bot.api.chat)

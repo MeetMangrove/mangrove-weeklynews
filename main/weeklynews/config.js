@@ -6,7 +6,7 @@ import localTunnel from 'localtunnel'
 import Botkit from 'botkit'
 import BotkitStorageMongo from 'botkit-storage-mongo'
 
-const _bots = {}
+const bots = {}
 const {
   SLACK_CLIENT_ID,
   SLACK_CLIENT_SECRET,
@@ -31,7 +31,7 @@ if (NODE_ENV === 'DEVELOPMENT') {
 }
 
 const trackBot = (bot) => {
-  _bots[bot.config.token] = bot
+  bots[bot.config.token] = bot
 }
 
 const mongoStorage = new BotkitStorageMongo({
@@ -63,7 +63,7 @@ controller.setupWebserver(PORT, (err) => {
 })
 
 controller.on('create_bot', (bot, config) => {
-  if (_bots[bot.config.token]) {
+  if (bots[bot.config.token]) {
     // already online! do nothing.
   } else {
     bot.startRTM((err) => {
@@ -97,4 +97,4 @@ controller.storage.teams.all((err, teams) => {
   }
 })
 
-export { controller, _bots }
+export { controller, bots }

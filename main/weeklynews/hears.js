@@ -19,9 +19,12 @@ if (!NODE_ENV && !PORT) {
 }
 
 const notResponsibleMessage = (responsible) => `You need to be the Weekly News' responsible if you want to use me :ghost:\n The responsible is currently <@${responsible}>`
-const errorMessage = (e) => `Oops..! :sweat_smile: A little error occur: \`${e.message || e.error || e}\``
+const errorMessage = (e, bot, message) => {
+  console.log(e)
+  bot.reply(message, `Oops..! :sweat_smile: A little error occur: \`${e.message || e.error || e}\``)
+}
 
-// Builder Commands
+// Responsible Commands
 
 controller.hears(['^send message$'], ['direct_message', 'direct_mention'], async (bot, message) => {
   try {
@@ -33,8 +36,7 @@ controller.hears(['^send message$'], ['direct_message', 'direct_mention'], async
       bot.reply(message, notResponsibleMessage(responsible))
     }
   } catch (e) {
-    console.log(e)
-    bot.reply(message, errorMessage(e))
+    errorMessage(e, bot, message)
   }
 })
 
@@ -47,8 +49,7 @@ controller.hears(['^get news$'], ['direct_message', 'direct_mention'], async (bo
       bot.reply(message, notResponsibleMessage(responsible))
     }
   } catch (e) {
-    console.log(e)
-    bot.reply(message, errorMessage(e))
+    errorMessage(e, bot, message)
   }
 })
 
@@ -56,13 +57,12 @@ controller.hears(['^template$'], ['direct_message', 'direct_mention'], async (bo
   try {
     const {isResponsible, responsible} = await checkIfResponsible(bot, message)
     if (isResponsible) {
-      bot.reply(message, `This is the template to create a weekly news: <https://docs.google.com/document/d/1mbDYUZYr434mUtzkn0I86oss9hrKphQb0Qwy02zXGWM/edit?usp=sharing|Template Weekly News>`)
+      bot.reply(message, `This is the template to create a Weekly News: <https://docs.google.com/document/d/1mbDYUZYr434mUtzkn0I86oss9hrKphQb0Qwy02zXGWM/edit?usp=sharing|Template Weekly News>`)
     } else {
       bot.reply(message, notResponsibleMessage(responsible))
     }
   } catch (e) {
-    console.log(e)
-    bot.reply(message, errorMessage(e))
+    errorMessage(e, bot, message)
   }
 })
 
@@ -80,8 +80,7 @@ controller.hears(['^Hello$', '^Yo$', '^Hey$', '^Hi$', '^Ouch$'], ['direct_messag
       await botReply(message, notResponsibleMessage(responsible))
     }
   } catch (e) {
-    console.log(e)
-    bot.reply(message, errorMessage(e))
+    errorMessage(e, bot, message)
   }
 })
 
@@ -95,7 +94,7 @@ controller.hears(['^help$', '^options$'], ['direct_message', 'direct_mention'], 
       await botReply(message, {
         attachments: [{
           pretext: 'This is what you can ask me:',
-          text: `\`send message\` - Send a custom message to everyone and display answers. You can use the variable _{firstName}_ to personalize the message\n\`get news\` - Get all last messages that people have sent to you since your message\n\`template\` - Display the template of a weekly news`,
+          text: `\`send message\` - Send a custom message to everyone and display answers. You can use the variable _{firstName}_ to personalize the message\n\`get news\` - Get all last messages that people have sent to you since your message\n\`template\` - Display the template of a Weekly News`,
           mrkdwn_in: ['text', 'pretext']
         }]
       })
@@ -103,8 +102,7 @@ controller.hears(['^help$', '^options$'], ['direct_message', 'direct_mention'], 
       bot.reply(message, notResponsibleMessage(responsible))
     }
   } catch (e) {
-    console.log(e)
-    bot.reply(message, errorMessage(e))
+    errorMessage(e, bot, message)
   }
 })
 
@@ -117,7 +115,6 @@ controller.hears('[^\n]+', ['direct_message', 'direct_mention'], async (bot, mes
       convo.say(`If you need help, just tell me \`help\` :wink:`)
     })
   } catch (e) {
-    console.log(e)
-    bot.reply(message, errorMessage(e))
+    errorMessage(e, bot, message)
   }
 })
