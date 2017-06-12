@@ -1,5 +1,5 @@
 {
-  "name": "bot-boilerplate",
+  "name": "mangrove-weeklynews",
   "private": true,
   "scripts": {
     "start": "nodemon main/index.js --exec babel-node",
@@ -42,18 +42,18 @@
     "mocha": "^3.3.0",
     "nodemon": "^1.11.0"
   },
-  "description": "A boilerplate for Mangrove Bots in Node.js.",
+  "description": "A bot to automatize the Weekly News creation without kill the human vibe.",
   "version": "1.0.0",
   "main": "main/index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/MeetMangrove/bot-boilerplate.git"
+    "url": "git+https://github.com/MeetMangrove/mangrove-weeklynews.git"
   },
   "keywords": [],
   "author": "",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/MeetMangrove/bot-boilerplate/issues"
+    "url": "https://github.com/MeetMangrove/mangrove-weeklynews/issues"
   },
-  "homepage": "https://github.com/MeetMangrove/bot-boilerplate#readme"
+  "homepage": "https://github.com/MeetMangrove/mangrove-weeklynews#readme"
 }
