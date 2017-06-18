@@ -43,7 +43,7 @@ export default (bot, message, name) => new Promise((resolve, reject) => {
       }, 'completed')
 
       convo.addQuestion({
-        text: 'I\'m gonna send this message to everyone for you.',
+        text: 'I\'m gonna send this message to 25% of the slack for you.',
         attachments: [
           {
             title: 'Is it okay?',
