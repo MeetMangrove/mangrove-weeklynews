@@ -13,7 +13,7 @@ require('dotenv').config()
 const {forEach} = asyncForEach
 const {NODE_ENV} = process.env
 
-export default (bot, message, name) => new Promise((resolve, reject) => {
+export default (bot, message, name, token) => new Promise((resolve, reject) => {
   try {
     let template
     bot.startPrivateConversation(message, (err, convo) => {
@@ -22,7 +22,9 @@ export default (bot, message, name) => new Promise((resolve, reject) => {
         text: `Okay ${name}, let's build the weekly news!`
       }, 'default')
 
-      convo.addQuestion('What\'s the message you want to send to everyone for asking some news ? You can use the variable _{firstName}_ if you want.', (response, convo) => {
+      convo.addQuestion({
+        text: 'What\'s the message you want to send to everyone for asking some news ? You can use the variable _{firstName}_ if you want.'
+      }, (response, convo) => {
         convo.gotoThread('completed')
       }, {key: 'response'}, 'default')
 
@@ -85,7 +87,7 @@ export default (bot, message, name) => new Promise((resolve, reject) => {
                 const isBot = await checkIfBot(bot, id)
                 if (isBot === false && ((NODE_ENV === 'PRODUCTION' && id !== message.user) || id === message.user)) {
                   const message = await apiChat.postMessageAsync({
-                    token: bot.config.bot.app_token,
+                    token,
                     channel: id,
                     text: template({firstName}),
                     as_user: true
@@ -133,9 +135,7 @@ export default (bot, message, name) => new Promise((resolve, reject) => {
 
       ], {}, 'completed')
 
-      convo.on('end', () => {
-        resolve()
-      })
+      convo.on('end', () => resolve())
     })
   } catch (e) {
     reject(e)

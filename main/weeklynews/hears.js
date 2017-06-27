@@ -8,6 +8,7 @@ import { getSlackUser, checkIfResponsible } from '../methods'
 import { controller } from './config'
 import sendMessage from './sendMessage'
 import getNews from './getNews'
+import authUser from './authUser'
 
 require('dotenv').config()
 
@@ -31,7 +32,8 @@ controller.hears(['^send message$'], ['direct_message', 'direct_mention'], async
     const {isResponsible, responsible} = await checkIfResponsible(bot, message)
     if (isResponsible) {
       const {name} = await getSlackUser(bot, message.user)
-      await sendMessage(bot, message, name)
+      const token = await authUser(bot, message)
+      if (name && token) await sendMessage(bot, message, name, token)
     } else {
       bot.reply(message, notResponsibleMessage(responsible))
     }
@@ -73,6 +75,7 @@ controller.hears(['^Hello$', '^Yo$', '^Hey$', '^Hi$', '^Ouch$'], ['direct_messag
     const {name} = await getSlackUser(bot, message.user)
     const botReply = Promise.promisify(bot.reply)
     await botReply(message, `Hi ${name}! I'm the Weekly News bot of Mangrove :tada:`)
+    if (NODE_ENV === 'DEVELOPMENT') await botReply(message, `*You are using my development version!* :nerd_face:`)
     const {isResponsible, responsible} = await checkIfResponsible(bot, message)
     if (isResponsible) {
       await botReply(message, `Say \`send message\` if you want me to send a personal message to everybody and get some news :rocket:`)
