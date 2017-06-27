@@ -35,7 +35,8 @@ export default async (bot, message, token) => {
           token,
           channel: id,
           oldest: lastTs,
-          count: 3
+          count: 3,
+          inclusive: false
         })
         if (messages.length > 0) {
           count++
