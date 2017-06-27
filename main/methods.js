@@ -171,7 +171,7 @@ export const getTimestamp = async (bot, userId, allMembers) => {
   const records = await _getAllRecords(base(AIRTABLE_MEMBERS).select({
     view: 'Main View',
     fields: ['Message Timestamp [weeklynews]'],
-    filterByFormula: `{Slack Handle} = '@${name}')`
+    filterByFormula: `{Slack Handle} = '@${name}'`
   }))
   return records[0].get('Message Timestamp [weeklynews]')
 }

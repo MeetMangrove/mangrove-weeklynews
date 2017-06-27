@@ -46,7 +46,8 @@ controller.hears(['^get news$'], ['direct_message', 'direct_mention'], async (bo
   try {
     const {isResponsible, responsible} = await checkIfResponsible(bot, message)
     if (isResponsible) {
-      await getNews(bot, message)
+      const token = await authUser(bot, message)
+      if (token) await getNews(bot, message, token)
     } else {
       bot.reply(message, notResponsibleMessage(responsible))
     }

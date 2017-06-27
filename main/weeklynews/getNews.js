@@ -15,15 +15,13 @@ import {
 
 const {forEach} = asyncForEach
 
-export default async (bot, message) => {
+export default async (bot, message, token) => {
   const botReply = Promise.promisify(bot.reply)
   await botReply(message, `Looking for all responses... :sleuth_or_spy:`)
   const usersAsked = await getUsersAskedByResponsible(bot, message.user)
   const allMembers = await getAllMembers(bot)
   const apiIm = Promise.promisifyAll(bot.api.im)
-  const {ims} = await apiIm.listAsync({
-    token: bot.config.bot.app_token
-  })
+  const {ims} = await apiIm.listAsync({token})
   let count = 0
   let replies = 0
   forEach(ims, async function ({id, user}) {
@@ -34,7 +32,7 @@ export default async (bot, message) => {
         replies++
         const lastTs = await getTimestamp(bot, user, allMembers)
         const {messages} = await apiIm.historyAsync({
-          token: bot.config.bot.app_token,
+          token,
           channel: id,
           oldest: lastTs,
           count: 3
