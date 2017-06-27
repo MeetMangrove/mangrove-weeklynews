@@ -128,6 +128,7 @@ export const checkIfResponsible = async (bot, message) => {
   }
 }
 
+// check if the id is one of a bot
 export const checkIfBot = async (bot, id) => {
   if (id === 'USLACKBOT') return true
   const apiUsers = Promise.promisifyAll(bot.api.users)
@@ -135,6 +136,7 @@ export const checkIfBot = async (bot, id) => {
   return isBot
 }
 
+// get the current and the next responsible
 export const getResponsibles = async (bot) => {
   const members = []
   const records = await _getAllRecords(base(AIRTABLE_MEMBERS).select({
@@ -166,6 +168,7 @@ export const getResponsibles = async (bot) => {
   return {responsibleId, nextResponsibleId, airtableId, nextAirtableId}
 }
 
+// get the last weekly news message's timestamp of a user
 export const getTimestamp = async (bot, userId, allMembers) => {
   const {name} = _.find(allMembers, {id: userId})
   const records = await _getAllRecords(base(AIRTABLE_MEMBERS).select({
@@ -176,6 +179,7 @@ export const getTimestamp = async (bot, userId, allMembers) => {
   return records[0].get('Message Timestamp [weeklynews]')
 }
 
+// get users already asked this month
 export const getUsersAskedByResponsible = async (bot, userId) => {
   const users = []
   const records = await _getAllRecords(base(AIRTABLE_MEMBERS).select({
