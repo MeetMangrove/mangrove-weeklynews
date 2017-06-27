@@ -35,9 +35,10 @@ export default async (bot, message, token) => {
           token,
           channel: id,
           oldest: lastTs,
-          count: 3,
+          count: 4,
           inclusive: false
         })
+        messages.pop()
         if (messages.length > 0) {
           count++
           await botReply(message, {
