@@ -1,4 +1,10 @@
-# Mangrove Bot Weekly News
+# Mangrove Bot Weekly News (deprecated)
+                          
+*This repository is no longer maintain anymore, see [Familybot](https://github.com/MeetMangrove/familybot)*
+
+
+<---------->
+
 
 A bot to automatize the weekly news creation without kill the human vibe.
 

@@ -42,7 +42,7 @@
     "mocha": "^3.3.0",
     "nodemon": "^1.11.0"
   },
-  "description": "A bot to automatize the Weekly News creation without kill the human vibe.",
+  "description": "All our bot at the same place!",
   "version": "1.0.0",
   "main": "main/index.js",
   "repository": {
